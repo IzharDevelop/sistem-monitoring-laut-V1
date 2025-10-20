@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PRAHU</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        :root {
+            --bg-primary: #0A192F;
+            --bg-secondary: #112240;
+            --bg-tertiary: #233554;
+            --text-primary: #E6F1FF;
+            --text-secondary: #8892B0;
+            --accent-primary: #64FFDA;
+            --accent-danger: #FF4C4C;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: "SF Mono", "Fira Code", monospace;
+        }
+        body { font-family: var(--font-sans); background-color: var(--bg-primary); color: var(--text-primary); margin: 0; padding: 20px; }
+        .container { max-width: 1800px; margin: 0 auto; }
+
+        /* Header */
+        .header { padding: 15px 25px; background-color: var(--bg-secondary); border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--bg-tertiary); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: var(--accent-primary); margin: 0; font-size: 1.6em; }
+        .header-info { text-align: right; }
+        .header-info span { display: block; font-size: 0.9em; color: var(--text-secondary); }
+        .header-info code { color: var(--accent-primary); background-color: var(--bg-tertiary); padding: 3px 6px; border-radius: 4px; }
+
+        /* Main Layout */
+        .main-grid { display: grid; grid-template-columns: 400px 1fr; gap: 25px; }
+
+        /* Card Style */
+        .card { background-color: var(--bg-secondary); padding: 25px; border-radius: 12px; border: 1px solid var(--bg-tertiary); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card h2 { border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 15px; margin: -25px -25px 20px -25px; padding: 20px 25px; font-size: 1.2em; color: var(--accent-primary); }
+
+        /* Left Column: Controls & Status */
+        .left-column { display: flex; flex-direction: column; gap: 25px; }
+        
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; }
+        .status-item .label { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 8px; display: block; }
+        .status-item .value { font-family: var(--font-mono); font-size: 1.8em; font-weight: bold; }
+        .status-item .value.on { color: var(--accent-primary); }
+        .status-item .value.off { color: var(--accent-danger); }
+
+        .control-group { display: flex; flex-direction: column; gap: 12px; }
+        .control-group .label { font-size: 1em; color: var(--text-secondary); margin-bottom: 5px; text-align: center; font-weight: bold; }
+        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .btn-grid .full-span { grid-column: 1 / -1; }
+        .control-button { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; font-size: 1em; font-weight: bold; color: var(--bg-primary); background-color: var(--accent-primary); border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .control-button:hover { filter: brightness(1.2); }
+        .control-button:active { transform: scale(0.97); }
+        .control-button.danger { background-color: var(--accent-danger); color: var(--text-primary); }
+        .control-button svg { width: 20px; height: 20px; fill: currentColor; }
+
+        /* Right Column: Charts & Data */
+        .right-column { display: flex; flex-direction: column; gap: 25px; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .chart-container { min-height: 280px; }
+        #serialMonitorOutput { background-color: #000; color: #00FF41; padding: 15px; border-radius: 8px; flex-grow: 1; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-family: var(--font-mono); font-size: 0.95em; min-height: 300px; border: 1px solid var(--bg-tertiary); }
+        .raw-values-table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 10px; }
+        .raw-values-table th, .raw-values-table td { padding: 10px; border: 1px solid var(--bg-tertiary); font-size: 0.9em; }
+        .raw-values-table th { color: var(--accent-primary); }
+        .raw-values-table td { font-family: var(--font-mono); font-weight: bold; font-size: 1em; }
+
+        /* Footer */
+        .footer { text-align: center; margin-top: 40px; font-size: 14px; color: var(--text-secondary); }
+        .footer a { color: var(--accent-primary); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* Responsive */
+        @media (max-width: 1200px) { .main-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .chart-grid { grid-template-columns: 1fr; } .header { flex-direction: column; gap: 10px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>PRAHU Dashboard</h1>
+            <div class="header-info">
+                <span>Koneksi: <code>{{ port }}</code> @ <code>{{ baudrate }}</code></span>
+                <a href="/admin/logout" class="footer a">Logout</a>
+            </div>
+        </header>
+
+        <main class="main-grid">
+            <div class="left-column">
+                <div class="card">
+                    <h2>Status Overview</h2>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="label">Mesin</span>
+                            <div id="engineStatus" class="value off">STOP</div>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Konveyor</span>
+                            <div id="conveyorStatus" class="value off">OFF</div>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Arah Belok</span>
+                            <div id="turnStatus" class="value">0°</div>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Kemiringan</span>
+                            <div id="gyroStatus" class="value">CENTER</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Panel Kontrol</h2>
+                    <div class="control-group">
+                        <div class="label">Navigasi</div>
+                        <div class="btn-grid">
+                            <button class="control-button" onclick="sendCommand('3')"><svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg> Kiri</button>
+                            <button class="control-button" onclick="sendCommand('2')"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> Lurus</button>
+                            <button class="control-button" onclick="sendCommand('1')"><svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg> Kanan</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="label">Sistem</div>
+                        <div class="btn-grid" style="grid-template-columns: 1fr 1fr;">
+                            <button class="control-button" onclick="sendCommand('4')"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Maju</button>
+                            <button class="control-button danger" onclick="sendCommand('5')"><svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg> Stop</button>
+                            <button class="control-button" onclick="sendCommand('6')"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10z"/></svg> ON</button>
+                            <button class="control-button danger" onclick="sendCommand('7')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> OFF</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Live Serial Monitor</h2>
+                    <pre id="serialMonitorOutput">Menunggu data masuk...</pre>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="card">
+                    <h2>Visualisasi Sensor</h2>
+                    <div class="chart-grid">
+                        <div class="chart-container"><canvas id="chart-water"></canvas></div>
+                        <div class="chart-container"><canvas id="chart-air"></canvas></div>
+                        <div class="chart-container"><canvas id="chart-temp"></canvas></div>
+                        <div class="chart-container"><canvas id="chart-level"></canvas></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Real-Time Raw Values</h2>
+                    <table class="raw-values-table">
+                        <thead><tr><th>Air (TDS)</th><th>Udara</th><th>Suhu</th><th>Level</th><th>G.Kanan</th><th>G.Kiri</th><th>Konv</th><th>Belok</th><th>Maju</th></tr></thead>
+                        <tbody><tr><td id="raw-water">-</td><td id="raw-air">-</td><td id="raw-temp">-</td><td id="raw-level">-</td><td id="raw-gyro_right">-</td><td id="raw-gyro_left">-</td><td id="raw-conveyor">-</td><td id="raw-belok">-</td><td id="raw-maju">-</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        <footer class="footer"><a href="/dashboard">Lihat Dasbor Publik</a> | <a href="/api-docs">Info API</a></footer>
+    </div>
+
+    <script>
+        const chartTextColor = '#E6F1FF';
+        const gridColor = 'rgba(136, 146, 176, 0.1)';
+        const createLineChart = (ctx, label, color, yMax) => new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label, data: [], borderColor: color, backgroundColor: color + '2A', fill: true, tension: 0.4, pointRadius: 0 }] },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { 
+                    x: { type: 'time', time: { unit: 'second', displayFormats: { second: 'HH:mm:ss' } }, ticks: { color: chartTextColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 7 }, grid: { color: gridColor } }, 
+                    y: { min: 0, max: yMax, ticks: { color: chartTextColor }, grid: { color: gridColor } }
+                },
+                plugins: { legend: { display: false } },
+                animation: { duration: 350 }
+            }
+        });
+
+        const charts = {
+            water: createLineChart(document.getElementById('chart-water').getContext('2d'), 'pH Air', '#3A86FF', 14),
+            air: createLineChart(document.getElementById('chart-air').getContext('2d'), 'Polusi Udara', '#17C3B2', 100),
+            temp: createLineChart(document.getElementById('chart-temp').getContext('2d'), 'Suhu', '#FF9F40', 100),
+            level: createLineChart(document.getElementById('chart-level').getContext('2d'), 'Level Air', '#33A1FF', 100)
+        };
+        const convertedDataKeys = { water: 'ph', air: 'pollution', temp: 'celsius', level: 'water_level' };
+
+        function updateDashboard() {
+            fetch('/api/monitoring').then(r => r.json()).then(d => {
+                if (!d || !d.raw) return;
+                const raw = d.raw;
+
+                // Update Raw Values Table
+                for (const key in raw) {
+                    const el = document.getElementById(`raw-${key}`);
+                    if (el) el.textContent = raw[key];
+                }
+
+                // Update Status Overview
+                const engineStatus = document.getElementById('engineStatus');
+                const conveyorStatus = document.getElementById('conveyorStatus');
+                const isEngineOn = raw.maju === 1;
+                const isConveyorOn = raw.conveyor === 1;
+
+                engineStatus.textContent = isEngineOn ? 'MAJU' : 'STOP';
+                engineStatus.className = `value ${isEngineOn ? 'on' : 'off'}`;
+                conveyorStatus.textContent = isConveyorOn ? 'ON' : 'OFF';
+                conveyorStatus.className = `value ${isConveyorOn ? 'on' : 'off'}`;
+                document.getElementById('turnStatus').textContent = `${raw.belok}°`;
+
+                let gyroText = 'CENTER';
+                if (raw.gyro_right > raw.gyro_left) gyroText = 'KANAN';
+                else if (raw.gyro_left > raw.gyro_right) gyroText = 'KIRI';
+                document.getElementById('gyroStatus').textContent = gyroText;
+
+                // Update Charts
+                const now = new Date();
+                for (const key in charts) {
+                    const chart = charts[key];
+                    chart.data.labels.push(now);
+                    chart.data.datasets[0].data.push(d.converted[convertedDataKeys[key]]);
+                    if (chart.data.labels.length > 20) {
+                        chart.data.labels.shift();
+                        chart.data.datasets[0].data.shift();
+                    }
+                    chart.update('none');
+                }
+            }).catch(e => console.error('Gagal memuat data monitoring:', e));
+            
+            fetch('/serial_log').then(r => r.json()).then(logData => {
+                const monitor = document.getElementById('serialMonitorOutput');
+                if (monitor) {
+                    const isScrolledToBottom = monitor.scrollHeight - monitor.clientHeight <= monitor.scrollTop + 5;
+                    monitor.textContent = logData.join('\n');
+                    if (isScrolledToBottom) monitor.scrollTop = monitor.scrollHeight;
+                }
+            });
+        }
+
+        function sendCommand(cmd) {
+            fetch('/admin/send_command', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ command: cmd }) 
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status !== 'sukses') alert(`Error: ${data.message}`);
+            })
+            .catch(err => alert('Gagal mengirim perintah ke server.'));
+        }
+
+        setInterval(updateDashboard, 1000); // Update interval 1s
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tentang Kami - Control Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0A192F;
+            --bg-secondary: #112240;
+            --bg-tertiary: #233554;
+            --text-primary: #E6F1FF;
+            --text-secondary: #8892B0;
+            --accent-primary: #64FFDA;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            background-color: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px -15px rgba(0,0,0,0.7);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: var(--accent-primary);
+            text-align: center;
+        }
+        h1 { font-size: 2.5em; margin-bottom: 20px; }
+        h2 { font-size: 1.8em; margin-top: 40px; border-top: 1px solid var(--bg-tertiary); padding-top: 30px;}
+        p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            line-height: 1.6;
+            text-align: justify;
+        }
+        .intro {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+        .school-section {
+            margin-bottom: 30px;
+        }
+        .school-section h3 {
+            color: var(--text-primary);
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+        .collab-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .school-name { font-size: 1.2em; font-weight: bold; }
+        .collab-text { font-size: 1.5em; color: var(--accent-primary); }
+        
+        .supporter {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .supporter p { font-size: 1em; margin-bottom: 10px; text-align: center; }
+        .supporter .dev-name { font-size: 1.5em; color: var(--accent-primary); font-weight: bold; }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--bg-tertiary);
+            font-size: 14px;
+        }
+        .footer a { color: var(--accent-primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tentang Proyek Ini</h1>
+        <p class="intro">Sistem Monitoring "Save The Ocean" ini adalah sebuah karya inovatif yang lahir dari semangat kolaborasi dan keinginan untuk menciptakan solusi teknologi yang bermanfaat bagi lingkungan.</p>
+        
+        <div class="school-section">
+            <h3>Pondok Pesantren Darul 'Ulum, Jombang</h3>
+            <p>Pondok Pesantren Darul 'Ulum, atau yang akrab disebut Pondok Njoso, adalah salah satu pesantren terkemuka dan terbesar di Jombang, Jawa Timur, didirikan pada tahun 1885 oleh KH. Tamim Irsyad. Berlokasi di Desa Rejoso, Peterongan, pesantren ini menempati area sekitar 42.5 hektar dan menampung puluhan ribu santri dari seluruh Indonesia bahkan mancanegara. Pondok ini menawarkan sistem pendidikan komprehensif yang mengintegrasikan studi agama dan umum, dengan berbagai institusi formal mulai dari Madrasah Ibtidaiyah hingga Universitas Darul 'Ulum, serta fasilitas lengkap termasuk laboratorium, masjid, dan asrama.</p>
+        </div>
+
+        <div class="school-section">
+            <h3>SMK Telekomunikasi Darul 'Ulum, Jombang</h3>
+            <p>Berlokasi di Peterongan, Jombang, sekolah ini adalah lembaga pendidikan kejuruan dengan akreditasi "A" yang berfokus pada teknologi dan telekomunikasi. Dengan motto "Bersoftware Religi Berhardware Teknologi", sekolah ini secara unik mengintegrasikan lingkungan Pondok Pesantren Darul 'Ulum dengan kurikulum IT modern. Tujuannya adalah untuk mencetak lulusan yang tidak hanya ahli di bidang teknis seperti Teknik Jaringan, Broadcasting, dan Pengembangan Game, tetapi juga memiliki karakter religius yang kuat.</p>
+            <h4>Perwakilan Tim dari SMK Telekomunikasi Darul 'Ulum:</h4>
+            <ul>
+                <li>Abul Basyar Al-Izhar</li>
+                <li>Muhammad Fajar Fristiawan</li>
+            </ul>
+        </div>
+
+        <div class="school-section">
+            <h3>MTS Plus Darul 'Ulum, Jombang</h3>
+            <p>Sebagai Madrasah Tsanawiyah (setingkat SMP) yang juga berada di bawah naungan Pondok Pesantren Darul 'Ulum, MTS Plus yang berdiri sejak 1991 ini memiliki kurikulum terpadu. Sekolah ini menggabungkan kurikulum nasional dari Kementerian Agama, kurikulum kepesantrenan, dan program-program unggulan. Program prioritasnya mencakup Tahfidzul Qur'an (hafalan Al-Qur'an), kajian Kitab Kuning, serta pengembangan bahasa asing (Arab dan Inggris), yang bertujuan membentuk generasi beriman dengan wawasan global.</p>
+            <h4>Perwakilan Tim dari MTS Plus Darul 'Ulum:</h4>
+            <ul>
+                <li>Nadira Zafiratun Nissa</li>
+                <li>Khansaa ‘Aqiila</li>
+                <li>Chiara Felysiana Malva Utomo</li>
+            </ul>
+        </div>
+
+        <div class="school-section">
+            <h2>Motivasi Proyek Prahu Autonomous</h2>
+            <p>Proyek perahu autonomous ini dikembangkan dengan visi untuk menciptakan solusi inovatif dalam monitoring lingkungan kelautan. Integrasi sistem ini dengan berbagai platform dan teknologi canggih bertujuan untuk:</p>
+            <ul>
+                <li>Monitoring Komprehensif: Mengumpulkan data lingkungan laut secara otomatis dan real-time menggunakan sensor yang terhubung ke Arduino Uno melalui serial port.</li>
+                <li>Aksesibilitas Data Luas: Memungkinkan pengguna untuk memantau kondisi laut melalui antarmuka web browser yang intuitif, serta menerima notifikasi dan mengontrol perahu melalui integrasi dengan aplikasi pesan populer seperti WhatsApp dan Telegram.</li>
+                <li>Dukungan Penelitian: Adanya dermaga penelitian yang dilengkapi sistem destilasi air menunjukkan komitmen terhadap inovasi dan keberlanjutan, memungkinkan analisis lebih lanjut terhadap sampel air yang dikumpulkan.</li>
+                <li>Pendidikan dan Inovasi: Proyek ini juga menjadi sarana pembelajaran dan pengembangan bagi siswa-siswi dari SMK Telekomunikasi Darul 'Ulum dan MTS Plus Darul 'Ulum, mendorong mereka untuk berinovasi dalam teknologi yang berorientasi pada solusi lingkungan.</li>
+            </ul>
+            <p>Dengan menggabungkan teknologi IoT, komunikasi multi-platform, dan analisis data, sistem ini diharapkan dapat memberikan kontribusi nyata dalam upaya pelestarian lingkungan laut Indonesia.</p>
+        </div>
+
+        <h2>Kolaborasi</h2>
+        <div class="collab-section">
+            <div class="logo-container">
+                <span class="school-name">SMK Telekomunikasi Darul 'Ulum</span>
+                <span class="collab-text">X</span>
+                <span class="school-name">MTS Plus Darul 'Ulum</span>
+            </div>
+            <div class="supporter">
+                <p>Didukung Oleh:</p>
+                <div class="dev-name">INV TECH</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="/dashboard">Kembali ke Dashboard</a> | <a href="/api-docs">Info API</a>
+        </div>
+    </div>
+</body>
+</html>

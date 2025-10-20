@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentasi - PRAHU</title>
+    <style>
+        :root {
+            --bg-primary: #0A192F;
+            --bg-secondary: #112240;
+            --bg-tertiary: #233554;
+            --text-primary: #E6F1FF;
+            --text-secondary: #8892B0;
+            --accent-primary: #64FFDA;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: "SF Mono", "Fira Code", monospace;
+        }
+        body { font-family: var(--font-sans); background-color: var(--bg-primary); color: var(--text-primary); margin: 0; padding: 20px; line-height: 1.7; }
+        .container { max-width: 960px; margin: 20px auto; }
+        .card { background-color: var(--bg-secondary); padding: 30px 40px; border-radius: 12px; border: 1px solid var(--bg-tertiary); margin-bottom: 25px; }
+        h1, h2, h3 { color: var(--accent-primary); border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 10px; }
+        h1 { font-size: 2.5em; text-align: center; border: none; padding: 0; margin-bottom: 15px; }
+        h2 { font-size: 1.8em; margin-top: 40px; }
+        h3 { font-size: 1.4em; margin-top: 30px; border-bottom: none; color: var(--text-primary); }
+        p, li { color: var(--text-secondary); font-size: 1.1em; }
+        code { background-color: var(--bg-tertiary); color: var(--accent-primary); padding: 4px 8px; border-radius: 5px; font-family: var(--font-mono); font-size: 0.9em; }
+        pre { background-color: #01122A; padding: 20px; border-radius: 8px; border: 1px solid var(--bg-tertiary); overflow-x: auto; position: relative; }
+        pre code { padding: 0; background-color: transparent; border: none; color: #82aaff; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 1em; }
+        th, td { border: 1px solid var(--bg-tertiary); padding: 12px; text-align: left; }
+        th { background-color: var(--bg-tertiary); color: var(--text-primary); }
+        .pill { display: inline-block; padding: 5px 12px; border-radius: 15px; font-size: 0.9em; font-weight: bold; }
+        .pill.get { background-color: #3a86ff44; color: #3a86ff; }
+        .pill.post { background-color: #17c3b244; color: #17c3b2; }
+        .nav { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--bg-tertiary); }
+        .nav a { color: var(--accent-primary); text-decoration: none; margin: 0 15px; font-size: 1.1em; }
+        .code-switcher { display: flex; gap: 10px; margin-bottom: -1px; border-bottom: 1px solid var(--bg-tertiary); padding-left: 10px; }
+        .code-switcher button { background: none; border: none; color: var(--text-secondary); padding: 10px 15px; cursor: pointer; font-size: 1em; border-bottom: 3px solid transparent; }
+        .code-switcher button.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+        .code-block { display: none; }
+        .code-block.active { display: block; }
+        .code-block pre { border-top-left-radius: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Dokumentasi Proyek PRAHU</h1>
+            <p style="text-align: center; font-size: 1.2em; color: var(--text-primary);">Panduan Pengguna, Referensi API, dan Konfigurasi Perangkat Keras</p>
+        </div>
+
+        <div class="card">
+            <h2>1. Panduan Memulai Cepat</h2>
+            <p>Ikuti langkah-langkah ini untuk menjalankan dan menggunakan aplikasi PRAHU.</p>
+            <ol>
+                <li><strong>Login sebagai Admin:</strong> Buka aplikasi di browser. Anda akan disambut oleh halaman login. Masukkan username dan password yang valid (contoh: <code>admin</code> / <code>admin</code>).</li>
+                <li><strong>Konfigurasi Koneksi:</strong> Setelah berhasil login, Anda akan melihat halaman konfigurasi. Pilih <strong>Port Serial</strong> tempat perangkat Anda terhubung dan sesuaikan <strong>Baud Rate</strong> agar cocok dengan yang ada di kode perangkat keras Anda (umumnya <code>9600</code>).</li>
+                <li><strong>Hubungkan:</strong> Klik tombol "Hubungkan". Jika berhasil, Anda akan otomatis diarahkan ke Dasbor Admin. Jika gagal, akan muncul pesan error untuk membantu Anda melakukan troubleshooting.</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h2>2. Anatomi Dasbor Admin</h2>
+            <p>Dasbor admin adalah pusat kendali dan monitoring. Berikut adalah penjelasan setiap komponennya.</p>
+            <h3>Status Overview</h3>
+            <p>Bagian ini memberikan ringkasan status perahu secara cepat dan mudah dibaca.</p>
+            <ul>
+                <li><code>Mesin</code>: Menunjukkan apakah mesin sedang <strong>MAJU</strong> atau <strong>STOP</strong>.</li>
+                <li><code>Konveyor</code>: Menunjukkan apakah sistem konveyor sedang <strong>ON</strong> atau <strong>OFF</strong>.</li>
+                <li><code>Arah Belok</code>: Menampilkan sudut belok perahu saat ini dalam derajat.</li>
+                <li><code>Kemiringan</code>: Menunjukkan kemiringan perahu (<strong>KIRI</strong>, <strong>KANAN</strong>, atau <strong>CENTER</strong>).</li>
+            </ul>
+            <h3>Panel Kontrol</h3>
+            <p>Gunakan tombol-tombol ini untuk mengirim perintah langsung ke perahu.</p>
+            <h3>Visualisasi Sensor & Data</h3>
+            <ul>
+                <li><strong>Grafik Sensor:</strong> Empat grafik menampilkan data pH, polusi udara, suhu, dan level air secara real-time.</li>
+                <li><strong>Live Serial Monitor:</strong> Menampilkan log data mentah yang diterima dari port serial.</li>
+                <li><strong>Real-Time Raw Values:</strong> Tabel yang menunjukkan nilai mentah terakhir dari semua parameter sensor.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>3. Referensi API</h2>
+            <p>Aplikasi ini menyediakan beberapa endpoint API untuk mengakses data secara terprogram.</p>
+
+            <h3><span class="pill get">GET</span> /api/monitoring</h3>
+            <p>Mengembalikan data sensor dan status koneksi terakhir dalam format JSON.</p>
+
+            <h3><span class="pill get">GET</span> /api/statistics</h3>
+            <p>Mengembalikan rekapitulasi statistik (rata-rata, tertinggi, terendah) dari data sensor yang dikelompokkan per hari.</p>
+
+            <h3><span class="pill post">POST</span> /admin/send_command</h3>
+            <p>Mengirim perintah kontrol ke perangkat. Endpoint ini memerlukan login admin.</p>
+            
+            <h3 style="margin-top: 40px;"><span class="pill post">POST</span> /api/chatbot</h3>
+            <p>Mengirim pertanyaan ke asisten AI dan menerima jawaban berdasarkan data telemetri dan basis pengetahuan. Endpoint ini memerlukan autentikasi menggunakan API Key.</p>
+            <ul>
+                <li><strong>URL:</strong> <code>http://127.0.0.1:5000/api/chatbot</code></li>
+                <li><strong>Method:</strong> <code>POST</code></li>
+                <li><strong>Headers:</strong>
+                    <ul>
+                        <li><code>Content-Type: application/json</code></li>
+                        <li><code>Authorization: Bearer ABCDEFGIJKLMNOPQRSTUFWXYZ</code></li>
+                    </ul>
+                </li>
+                <li><strong>Body (JSON):</strong>
+                    <pre><code>{
+    "question": "Berapa suhu air laut saat ini?"
+}</code></pre>
+                </li>
+            </ul>
+            
+            <h4 style="color: var(--text-primary); margin-top: 25px; margin-bottom: 15px;">Contoh Penggunaan:</h4>
+            <div class="code-switcher">
+                <button class="active" onclick="switchCode(event, 'curl')">cURL</button>
+                <button onclick="switchCode(event, 'javascript')">JavaScript</button>
+                <button onclick="switchCode(event, 'python')">Python</button>
+            </div>
+
+            <div id="curl" class="code-block active">
+                <pre><code>curl -X POST http://127.0.0.1:5000/api/chatbot \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer ABCDEFGIJKLMNOPQRSTUFWXYZ" \
+-d '{
+    "question": "Apa dampak perubahan iklim bagi laut?"
+}'</code></pre>
+            </div>
+
+            <div id="javascript" class="code-block">
+                <pre><code>const apiKey = 'ABCDEFGIJKLMNOPQRSTUFWXYZ';
+const question = 'Apa dampak perubahan iklim bagi laut?';
+
+fetch('http://127.0.0.1:5000/api/chatbot', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({ question: question })
+})
+.then(response => response.json())
+.then(data => {
+    console.log(data.answer);
+})
+.catch(error => {
+    console.error('Error:', error);
+});</code></pre>
+            </div>
+
+            <div id="python" class="code-block">
+                <pre><code>import requests
+import json
+
+api_key = 'ABCDEFGIJKLMNOPQRSTUFWXYZ'
+question = 'Apa dampak perubahan iklim bagi laut?'
+url = 'http://127.0.0.1:5000/api/chatbot'
+
+headers = {
+    'Content-Type': 'application/json',
+    'Authorization': f'Bearer {api_key}'
+}
+
+data = {
+    "question": question
+}
+
+try:
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response.raise_for_status()  # Raise an exception for bad status codes
+    
+    result = response.json()
+    print(result.get('answer'))
+
+except requests.exceptions.RequestException as e:
+    print(f"Error: {e}")
+</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Panduan Perangkat Keras</h2>
+            <p>Agar aplikasi dapat berfungsi dengan benar, perangkat keras Anda (misal: Arduino) harus mengirimkan data melalui serial dengan format yang tepat.</p>
+            
+            <h3>Format Data Serial</h3>
+            <p>Data harus dikirim sebagai <strong>satu baris teks</strong> berisi **9 nilai integer yang dipisahkan koma**, diakhiri dengan karakter baris baru (<em>newline</em>). Gunakan fungsi <code>Serial.println()</code>.</p>
+            <pre><code>[TDS],[Udara],[Suhu],[GiroKanan],[GiroKiri],[LevelAir],[Konveyor],[Belok],[Maju]</code></pre>
+        </div>
+
+        <nav class="nav">
+            <a href="/dashboard">Kembali ke Dashboard</a>
+            <a href="/api-docs">API Singkat</a>
+        </nav>
+    </div>
+
+    <script>
+        function switchCode(event, lang) {
+            // Hide all code blocks
+            document.querySelectorAll('.code-block').forEach(block => {
+                block.classList.remove('active');
+            });
+            // Deactivate all buttons
+            document.querySelectorAll('.code-switcher button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Show the selected code block
+            document.getElementById(lang).classList.add('active');
+            // Activate the clicked button
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>

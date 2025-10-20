@@ -1,109 +1,115 @@
+# PRAHU - Real-Time Monitoring and Control Dashboard
 
-# Real-Time Sensor Monitoring Dashboard
+**PRAHU** adalah aplikasi web berbasis Flask yang dirancang untuk memonitor dan mengendalikan perangkat keras (seperti perahu purwarupa yang dilengkapi Arduino) secara *real-time* melalui komunikasi serial.
 
-Ini adalah aplikasi web berbasis Flask yang berfungsi sebagai dasbor untuk memonitoring dan mengontrol perangkat keras (seperti Arduino) secara real-time melalui komunikasi serial.
-
-## Fitur Utama
-
-- **Dasbor Real-Time**: Menampilkan data sensor yang masuk secara langsung tanpa perlu me-refresh halaman.
-- **4 Grafik Sensor**: Visualisasi data untuk Kualitas Air (pH), Kualitas Udara, Suhu, dan Level Air dengan skala 0-1023.
-- **Jendela Waktu Terfokus**: Grafik hanya menampilkan 10 titik data terakhir untuk memantau perubahan terkini.
-- **Panel Status**: Indikator visual untuk status kemiringan perangkat (Center, Kanan, Kiri) dan status konveyor (ON/OFF).
-- **Kontrol Perangkat**: Tombol interaktif untuk menyalakan (`o`) dan mematikan (`c`) konveyor langsung dari halaman web.
-- **Live Serial Monitor**: Menampilkan data mentah yang diterima dari perangkat serial untuk keperluan debugging.
-- **Konfigurasi Mudah**: Halaman awal untuk memilih Port COM dan Baud Rate dengan mudah.
+![Admin Dashboard Screenshot](img/admin_dashboard_preview.png)  
+*(Catatan: Anda perlu menambahkan screenshot bernama `admin_dashboard_preview.png` di dalam folder `img/` agar gambar ini tampil)*
 
 ---
 
-## Persyaratan
+## Fitur Utama
+
+- **Dasbor Admin Modern**: Antarmuka pengguna yang bersih dan responsif, dirancang untuk kemudahan penggunaan.
+- **Kontrol Perangkat Komprehensif**:
+  - **Navigasi**: Kontrol untuk belok kiri, kanan, dan lurus.
+  - **Mesin**: Kontrol untuk maju dan berhenti.
+  - **Sistem**: Kontrol untuk menyalakan dan mematikan konveyor.
+- **Visualisasi Data Real-Time**: Grafik live untuk memonitor sensor-sensor penting (pH, polusi udara, suhu, level air).
+- **Panel Status Terpusat**: Tampilan ringkas untuk status mesin, konveyor, arah belok, dan kemiringan perahu.
+- **Live Serial Monitor**: Jendela untuk memantau data mentah yang masuk dari perangkat keras, sangat berguna untuk *debugging*.
+- **Otentikasi Admin**: Halaman login sederhana untuk melindungi akses ke panel konfigurasi dan kontrol.
+- **Konfigurasi Koneksi Mudah**: Antarmuka untuk memilih port serial dan *baud rate* saat aplikasi pertama kali dijalankan.
+- **API Endpoints**: Menyediakan data dalam format JSON untuk kemungkinan integrasi dengan sistem lain.
+
+---
+
+## Struktur Proyek
+
+```
+/PRAHU
+|-- app.py                  # File utama aplikasi Flask (logika backend)
+|-- requirements.txt        # Daftar dependensi Python
+|-- karyawan.json           # Database sederhana untuk login admin
+|-- monitoring_data.json    # File log untuk menyimpan riwayat data sensor
+|-- prahu_arduino/          # Contoh kode untuk perangkat keras (Arduino)
+|   `-- prahu_arduino.ino
+|-- templates/              # Folder untuk file HTML
+|   |-- admin_login.html
+|   |-- admin_config.html
+|   |-- admin_dashboard.html
+|   |-- documentation.html
+|   `-- ... (halaman lainnya)
+|-- img/                    # Folder untuk aset gambar
+|-- .gitignore
+`-- README.md
+```
+
+---
+
+## Instalasi & Persyaratan
 
 - Python 3.x
-- Pustaka Python yang tercantum dalam `requirements.txt`
+- Pyserial & Flask
 
-## Instalasi
+1.  **Clone Repositori**
+    ```bash
+    git clone <url-repositori-anda>
+    cd PRAHU
+    ```
 
-1.  Clone atau unduh repositori ini.
-2.  Buka terminal atau command prompt di dalam direktori proyek.
-3.  Instal semua pustaka yang dibutuhkan dengan menjalankan:
+2.  **Buat dan Aktifkan Virtual Environment** (Direkomendasikan)
+    ```bash
+    # Windows
+    python -m venv .venv
+    .venv\Scripts\activate
+
+    # macOS/Linux
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+
+3.  **Instal Dependensi**
+    Pastikan Anda berada di direktori utama proyek, lalu jalankan:
     ```bash
     pip install -r requirements.txt
     ```
 
 ---
 
-## Pengaturan Perangkat Keras & Format Data Serial
-
-Aplikasi ini mengharapkan perangkat keras Anda (misalnya Arduino) untuk mengirim data melalui koneksi serial dengan format yang sangat spesifik.
-
-**PENTING:** Data harus dikirim sebagai **satu baris teks (string)**, dengan **7 nilai angka** yang dipisahkan oleh koma, dan diakhiri dengan **baris baru (newline)**. Gunakan `Serial.println()` di Arduino, bukan `Serial.print()`.
-
-### Urutan Data Serial
-
-Berikut adalah urutan nilai yang harus dikirim:
-
-`[Nilai_pH],[Nilai_Udara],[Nilai_Suhu],[Giro_Kanan],[Giro_Kiri],[Level_Air],[Status_Konveyor]`
-
-**Contoh Baris Data:** `7,450,28,0,0,800,1`
-
-| Urutan | Deskripsi         | Contoh Nilai | Keterangan                                                               |
-| :----: | ----------------- | :----------: | ------------------------------------------------------------------------ |
-| 1      | Kualitas Air (pH) | `7`          | Akan ditampilkan di grafik "Kualitas Air".                               |
-| 2      | Kualitas Udara    | `450`        | Akan ditampilkan di grafik "Kualitas Udara".                             |
-| 3      | Suhu              | `28`         | Akan ditampilkan di grafik "Suhu".                                       |
-| 4      | Giro Kanan        | `90`         | Jika nilai > 0, status akan menjadi "Miring Kanan".                      |
-| 5      | Giro Kiri         | `0`          | Jika nilai > 0 (dan Giro Kanan = 0), status akan menjadi "Miring Kiri". |
-| 6      | Level Air         | `800`        | Akan ditampilkan di grafik "Level Air".                                  |
-| 7      | Status Konveyor   | `1`          | `1` untuk ON, `0` untuk OFF.                                             |
-
-
-### Contoh Kode Arduino
-
-Anda bisa menggunakan kode ini sebagai referensi untuk perangkat keras Anda.
-
-```cpp
-void setup() {
-  Serial.begin(9600); // Pastikan baud rate sama dengan yang dipilih di web
-}
-
-void loop() {
-  // Ganti nilai-nilai ini dengan pembacaan sensor Anda yang sebenarnya
-  int nilai_pH = 7;
-  int nilai_udara = 450;
-  int nilai_suhu = 28;
-  int nilai_giro_kanan = 0;
-  int nilai_giro_kiri = 0;
-  int nilai_level_air = 800;
-  int status_konveyor = 1;
-
-  // Bangun satu String lengkap dengan semua data
-  String data_kirim = String(nilai_pH) + "," + String(nilai_udara) + "," + String(nilai_suhu) + "," + 
-                      String(nilai_giro_kanan) + "," + String(nilai_giro_kiri) + "," + String(nilai_level_air) + "," + 
-                      String(status_konveyor);
-
-  // Kirim String dengan SATU perintah println
-  Serial.println(data_kirim);
-
-  // Jeda sebelum pengiriman data berikutnya
-  delay(2000); // Kirim data setiap 2 detik
-}
-```
-
----
-
-## Cara Menjalankan Aplikasi
+## Menjalankan Aplikasi
 
 1.  Pastikan perangkat keras Anda terhubung ke komputer.
 2.  Jalankan server Flask dengan perintah:
     ```bash
     python app.py
     ```
-3.  Buka browser web Anda dan kunjungi alamat:
-    `http://127.0.0.1:5000`
+3.  Buka browser dan kunjungi `http://127.0.0.1:5000`.
+4.  Anda akan diarahkan ke halaman login admin. Gunakan kredensial dari `karyawan.json` (contoh: `admin`/`admin`).
+5.  Setelah login, pilih Port COM dan Baud Rate yang sesuai dengan perangkat Anda, lalu klik "Hubungkan".
 
-## Cara Menggunakan
+---
 
-1.  Pada halaman awal, pilih **Port COM** yang sesuai dengan perangkat Anda.
-2.  Pilih **Baud Rate** yang sesuai dengan pengaturan di kode perangkat keras Anda (contoh di atas menggunakan **9600**).
-3.  Klik tombol **"Hubungkan"**.
-4.  Anda akan diarahkan ke dasbor utama di mana Anda bisa melihat data secara real-time.
-5.  Gunakan tombol **"Nyalakan"** atau **"Matikan"** di panel status untuk mengirim perintah ke konveyor Anda.
+## Format Data Serial Perangkat Keras
+
+Aplikasi mengharapkan perangkat keras mengirim data melalui serial dalam format yang spesifik: **9 nilai integer yang dipisahkan koma**, diakhiri dengan *newline* (`\n`).
+
+Gunakan `Serial.println()` pada Arduino untuk memastikan format ini terpenuhi.
+
+**Urutan Data:**
+`TDS,Udara,Suhu,GiroKanan,GiroKiri,LevelAir,Konveyor,Belok,Maju`
+
+**Contoh Baris Data:** `531,432,28,0,0,988,0,0,0`
+
+| Urutan | Deskripsi         | Contoh | Keterangan                                    |
+| :----: | ----------------- | :----: | --------------------------------------------- |
+| 1      | Kualitas Air (TDS)| `531`  | Nilai mentah dari sensor TDS/pH.              |
+| 2      | Kualitas Udara    | `432`  | Nilai mentah dari sensor polusi udara.        |
+| 3      | Suhu              | `28`   | Nilai mentah dari sensor suhu.                |
+| 4      | Giro Kanan        | `0`    | Nilai dari sensor giroskop (sumbu kanan).     |
+| 5      | Giro Kiri         | `0`    | Nilai dari sensor giroskop (sumbu kiri).      |
+| 6      | Level Air         | `988`  | Nilai mentah dari sensor level air.           |
+| 7      | Status Konveyor   | `0`    | `1` jika ON, `0` jika OFF.                    |
+| 8      | Status Belok      | `0`    | Derajat belok (misal: -90, 0, 90).            |
+| 9      | Status Maju       | `0`    | `1` jika mesin maju, `0` jika berhenti.       |
+
+Lihat `prahu_arduino/prahu_arduino.ino` untuk contoh implementasi pada Arduino.

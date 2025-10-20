@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Monitoring - Save The Ocean v2.4 (Final)</title>
+    <meta name="google-site-verification" content="H6STWhyJK5uOdaSpXx2XlDn3N18oJmzFBYxN1WtUdxc" />
+    <title>Dashboard Monitoring - Save The Ocean v3.3</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <style>
@@ -15,8 +17,6 @@
             --text-secondary: #8892B0;
             --accent-primary: #64FFDA;
             --accent-secondary: #3A86FF;
-            --error-bg: #ff4c4c2a;
-            --error-text: #FF4C4C;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
         }
@@ -42,30 +42,31 @@
         .header h1 {
             color: var(--accent-primary);
             font-size: 2.5em;
-            margin: 0;
+            margin: 0 0 10px 0;
         }
 
         .header p {
             color: var(--text-secondary);
             font-size: 1.1em;
+            margin: 0;
         }
 
         .main-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: auto auto;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
-            grid-template-areas:
-                "chart1 chart2 status"
-                "chart3 chart4 serial";
+            grid-template-areas: "chart1 chart2" "chart3 chart4" "stats  stats";
+            margin-bottom: 40px;
         }
 
         .grid-item {
             background-color: var(--bg-secondary);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 10px 30px -15px rgba(0,0,0,0.7);
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.7);
             border: 1px solid var(--bg-tertiary);
+            display: flex;
+            flex-direction: column;
         }
 
         .grid-item h2 {
@@ -76,303 +77,408 @@
             font-size: 1.2em;
         }
 
-        #chart-water { grid-area: chart1; }
-        #chart-air { grid-area: chart2; }
-        #chart-temp { grid-area: chart3; }
-        #chart-level { grid-area: chart4; }
-        #status-panel { grid-area: status; }
-        #serial-panel { grid-area: serial; }
+        #chart-water {
+            grid-area: chart1;
+        }
+
+        #chart-air {
+            grid-area: chart2;
+        }
+
+        #chart-temp {
+            grid-area: chart3;
+        }
+
+        #chart-level {
+            grid-area: chart4;
+        }
+
+        #stats-panel {
+            grid-area: stats;
+        }
 
         .chart-container {
-            height: 38vh;
+            flex-grow: 1;
+            min-height: 300px;
         }
-        
-        .chart-error-overlay {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            flex-direction: column;
-            text-align: center;
-            background-color: var(--error-bg);
-            border-radius: 8px;
-            border: 1px solid var(--error-text);
-        }
-        .chart-error-overlay h3 { margin: 0 0 10px 0; color: var(--error-text); }
-        .chart-error-overlay p { margin: 0; color: var(--text-secondary); font-size: 0.9em; }
 
-        /* Status Panel Styles */
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 25px;
-            height: 100%;
-            align-content: center;
-        }
-        .status-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        .status-item .label {
-            color: var(--text-secondary);
-            font-size: 1em;
-            margin-bottom: 10px;
-        }
-        .status-item .value-display {
-            font-weight: bold;
-            font-size: 1.5em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            transition: background-color 0.3s ease;
-        }
-        #conveyorStatus .status-indicator.on { background-color: var(--accent-primary); }
-        #conveyorStatus .status-indicator.off { background-color: #FF4C4C; }
-
-        #gyroStatus .value-display {
-            font-size: 1.8em;
-        }
-        
-        .control-button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            font-size: 1em;
-            font-weight: bold;
-            color: var(--bg-primary);
-            background-color: var(--accent-primary);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .control-button:hover { background-color: white; }
-
-        /* Serial Monitor Styles */
-        #serialMonitorOutput {
+        #stats-table-container {
             background-color: var(--bg-primary);
             color: var(--text-secondary);
             padding: 15px;
             border-radius: 5px;
-            height: calc(100% - 50px); 
+            flex-grow: 1;
             overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: var(--font-mono);
-            font-size: 0.9em;
             border: 1px solid var(--bg-tertiary);
+        }
+
+        #stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        #stats-table th,
+        #stats-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        #stats-table th {
+            color: var(--accent-primary);
+            font-size: 1.1em;
+        }
+
+        #stats-table td {
+            font-family: var(--font-mono);
+        }
+
+        #stats-table .sub-header th {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+
+        .blog-section {
+            margin-top: 40px;
+        }
+
+        .blog-section h2 {
+            text-align: center;
+            color: var(--accent-primary);
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .blog-card {
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-card-thumb {
+            width: 100%;
+            height: 180px;
+            background-color: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .blog-card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .blog-card-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .blog-card-content h3 {
+            color: var(--text-primary);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .blog-card-content p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.7);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: var(--accent-primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--bg-tertiary);
+            padding-bottom: 10px;
+        }
+
+        .modal-content p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        .close-button {
+            color: var(--text-secondary);
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--accent-primary);
+            text-decoration: none;
+            cursor: pointer;
         }
 
         .footer {
             text-align: center;
             margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--bg-tertiary);
             font-size: 14px;
             color: var(--text-secondary);
         }
 
-        @media (max-width: 1200px) {
-            .main-grid { grid-template-columns: 1fr 1fr; grid-template-areas: "chart1 chart2" "chart3 chart4" "status serial"; }
-        }
-        @media (max-width: 768px) {
-            .main-grid { grid-template-columns: 1fr; grid-template-areas: "chart1" "chart2" "chart3" "chart4" "status" "serial"; }
+        .footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            margin: 0 10px;
         }
 
-    </style>
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                grid-template-areas: "chart1" "chart2" "chart3" "chart4" "stats";
+            }
+
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
             <h1>SAVE THE OCEAN</h1>
             <p>Real-Time Monitoring Dashboard</p>
         </div>
-        
         <div class="main-grid">
             <div id="chart-water" class="grid-item">
                 <h2>Kualitas Air (pH)</h2>
                 <div class="chart-container"><canvas id="waterChart"></canvas></div>
             </div>
             <div id="chart-air" class="grid-item">
-                <h2>Kualitas Udara</h2>
+                <h2>Indeks Polusi Udara (%)</h2>
                 <div class="chart-container"><canvas id="airChart"></canvas></div>
             </div>
             <div id="chart-temp" class="grid-item">
-                <h2>Suhu</h2>
+                <h2>Suhu (°C)</h2>
                 <div class="chart-container"><canvas id="tempChart"></canvas></div>
             </div>
             <div id="chart-level" class="grid-item">
-                <h2>Level Air</h2>
+                <h2>Level Air (%)</h2>
                 <div class="chart-container"><canvas id="levelChart"></canvas></div>
             </div>
+            <div id="stats-panel" class="grid-item full-width">
+                <h2>Statistik Harian</h2>
+                <div id="stats-table-container">
+                    <table id="stats-table"></table>
+                </div>
+            </div>
+        </div>
 
-            <div id="status-panel" class="grid-item">
-                <h2>Status Perangkat</h2>
-                <div class="status-grid">
-                    <div id="gyroStatus" class="status-item">
-                        <span class="label">Kemiringan Perahu</span>
-                        <span class="value-display">CENTER</span>
+        <div class="blog-section">
+            <h2>Wawasan Kelautan Indonesia</h2>
+            <div class="blog-grid">
+                <div class="blog-card" data-title="Ancaman Sampah Plastik di Laut Indonesia"
+                    data-content="Indonesia adalah penyumbang sampah plastik laut terbesar kedua di dunia. Sampah ini merusak biota laut (terjerat, termakan), ekosistem (terumbu karang, bakau), dan menyebabkan mikroplastik masuk rantai makanan manusia. Sebagian besar berasal dari darat. Pemerintah menargetkan pengurangan 70% pada 2025 melalui pengelolaan sampah, regulasi, edukasi, dan kerjasama.">
+                    <div class="blog-card-thumb"><img src="https://izhardevelop.github.io/sistem-monitoring-laut-V1/img/Ancaman%20Sampah%20Plastik%20di%20Laut%20Indonesia.png"
+                            alt="Thumbnail Sampah Plastik"></div>
+                    <div class="blog-card-content">
+                        <h3>Ancaman Sampah Plastik di Laut Indonesia</h3>
+                        <p>Indonesia menghadapi krisis sampah plastik laut yang serius, mengancam ekosistem dan
+                            kesehatan manusia...</p>
                     </div>
-                    <div id="conveyorStatus" class="status-item">
-                        <span class="label">Konveyor Sampah</span>
-                        <span class="value-display">
-                            <div class="status-indicator off"></div>
-                            <span>OFF</span>
-                        </span>
-                        <button id="conveyorToggleButton" class="control-button">Nyalakan</button>
+                </div>
+                <div class="blog-card" data-title="Pentingnya Terumbu Karang bagi Ekosistem Laut"
+                    data-content="Terumbu karang adalah habitat utama, sumber makanan, dan tempat berkembang biak bagi biota laut. Mereka melindungi pesisir dari abrasi, menyaring air laut, dan mendukung ekonomi pariwisata serta perikanan. Sering disebut 'hutan hujan laut' karena perannya yang krusial.">
+                    <div class="blog-card-thumb"><img src="https://izhardevelop.github.io/sistem-monitoring-laut-V1/img/Pentingnya%20Terumbu%20Karang%20bagi%20Ekosistem%20Laut.png"
+                            alt="Thumbnail Terumbu Karang"></div>
+                    <div class="blog-card-content">
+                        <h3>Pentingnya Terumbu Karang bagi Ekosistem Laut</h3>
+                        <p>Terumbu karang adalah 'hutan hujan laut' yang vital, menyediakan habitat dan perlindungan
+                            pesisir...</p>
+                    </div>
+                </div>
+                <div class="blog-card" data-title="Ancaman Overfishing di Perairan Indonesia"
+                    data-content="Penangkapan ikan berlebihan terjadi ketika tangkapan melebihi kemampuan pulih populasi ikan. Penyebabnya IUU fishing, pengawasan lemah, permintaan tinggi, dan alat tangkap merusak. Dampaknya penurunan stok ikan (50% populasi terancam), kerusakan ekosistem, dan kerugian ekonomi nelayan. Solusi: penegakan hukum, kuota berkelanjutan, akuakultur, edukasi.">
+                    <div class="blog-card-thumb"><img src="https://izhardevelop.github.io/sistem-monitoring-laut-V1/img/Ancaman%20Overfishing%20di%20Perairan%20Indonesia.png"
+                            alt="Thumbnail Overfishing"></div>
+                    <div class="blog-card-content">
+                        <h3>Ancaman Overfishing di Perairan Indonesia</h3>
+                        <p>Penangkapan ikan berlebihan mengancam populasi ikan, merusak ekosistem, dan merugikan
+                            nelayan...</p>
+                    </div>
+                </div>
+                <div class="blog-card" data-title="Peran Vital Hutan Mangrove untuk Pesisir Indonesia"
+                    data-content="Indonesia memiliki hutan mangrove terluas di dunia. Mangrove melindungi pesisir dari erosi, abrasi, dan meredam tsunami. Mereka adalah habitat penting bagi biota laut, mencegah intrusi air laut, penyerap karbon efektif, dan penyaring alami limbah. Juga mendukung ekonomi lokal.">
+                    <div class="blog-card-thumb"><img src="https://izhardevelop.github.io/sistem-monitoring-laut-V1/img/Peran%20Vital%20Hutan%20Mangrove%20untuk%20Pesisir%20Indonesia.png"
+                            alt="Thumbnail Hutan Mangrove"></div>
+                    <div class="blog-card-content">
+                        <h3>Peran Vital Hutan Mangrove untuk Pesisir Indonesia</h3>
+                        <p>Hutan mangrove adalah pelindung alami pesisir, habitat biota, dan penyerap karbon penting...
+                        </p>
+                    </div>
+                </div>
+                <div class="blog-card" data-title="Teknologi Monitoring Kualitas Air Laut Indonesia"
+                    data-content="Indonesia menggunakan berbagai teknologi seperti IoT (sensor suhu, pH, salinitas, DO), drone, dan AI untuk memantau kualitas air laut secara real-time. Contohnya Tide-Eye (Telkom University) untuk rob, multiparameter, data logger, dan sistem pemantauan BRIN. Penting untuk mitigasi bencana dan pengelolaan sumber daya.">
+                    <div class="blog-card-thumb"><img src="https://izhardevelop.github.io/sistem-monitoring-laut-V1/img/Teknologi%20Monitoring%20Kualitas%20Air%20Laut%20Indonesia.png"
+                            alt="Thumbnail Teknologi Monitoring"></div>
+                    <div class="blog-card-content">
+                        <h3>Teknologi Monitoring Kualitas Air Laut Indonesia</h3>
+                        <p>IoT, drone, dan AI digunakan untuk memantau kualitas air laut secara real-time, mendukung
+                            mitigasi bencana...</p>
+                    </div>
+                </div>
+                <div class="blog-card" data-title="Dampak Perubahan Iklim terhadap Laut Indonesia"
+                    data-content="Perubahan iklim menyebabkan peningkatan suhu laut (pemutihan karang, migrasi ikan, penurunan oksigen), kenaikan permukaan laut (ancaman pesisir, intrusi air asin), pengasaman laut (ancaman biota), dan cuaca ekstrem. Ini merusak ekosistem, keanekaragaman hayati, serta mengancam mata pencarian dan ketahanan pangan.">
+                    <div class="blog-card-thumb"><img src="https://izhardevelop.github.io/sistem-monitoring-laut-V1/img/Dampak%20Perubahan%20Iklim%20terhadap%20Laut%20Indonesia.png"
+                            alt="Thumbnail Perubahan Iklim"></div>
+                    <div class="blog-card-content">
+                        <h3>Dampak Perubahan Iklim terhadap Laut Indonesia</h3>
+                        <p>Peningkatan suhu, kenaikan permukaan laut, dan pengasaman mengancam ekosistem dan kehidupan
+                            pesisir...</p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div id="serial-panel" class="grid-item">
-                <h2>Live Serial Monitor</h2>
-                <pre id="serialMonitorOutput">Menunggu data masuk...</pre>
+        <div id="blogModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2 id="modal-title"></h2>
+                <div id="modal-body"></div>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        &copy; 2025 - Dibuat oleh Team Darubot
+        <a href="/documentation">Dokumentasi</a> | 
+        <a href="/about">Tentang Kami</a> | 
+        <a href="/api-docs">Info API</a> | 
+        <a href="/admin">Admin Login</a>
+        <p style="margin-top: 10px;">
+            <a href="https://wa.me/6282191541450?text=prahu" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin: 5px; padding: 10px 15px; background-color: #25D366; color: white; border-radius: 5px; text-decoration: none;">WhatsApp</a>
+            <a href="https://t.me/darubots_bot" target="_blank" rel="noopener noreferrer" style="display: inline-block; margin: 5px; padding: 10px 15px; background-color: #0088cc; color: white; border-radius: 5px; text-decoration: none;">Telegram</a>
+        </p>
+        <p style="margin-top: 10px;">&copy; 2025 - Dibuat oleh Team Darubot</p>
     </div>
 
     <script>
         let allCharts = [];
-        let isConveyorOn = false;
-
         document.addEventListener('DOMContentLoaded', function () {
-            
-            try {
-                const chartOptions = (yMax = 1023, title) => ({
-                    responsive: true, maintainAspectRatio: false,
-                    scales: {
-                        x: { type: 'time', time: { unit: 'second', displayFormats: { second: 'HH:mm:ss' } }, ticks: { color: 'var(--text-secondary)' }, grid: { color: 'rgba(136, 146, 176, 0.1)' } },
-                        y: { min: 0, max: yMax, ticks: { color: 'var(--text-secondary)' }, grid: { color: 'rgba(136, 146, 176, 0.2)' } }
-                    },
-                    plugins: { legend: { display: false }, title: { display: false } },
-                    animation: { duration: 400 }
-                });
+            const chartTextColor = '#E6F1FF';
+            const createLineChart = (ctx, l, c, y) => new Chart(ctx, { type: 'line', data: { labels: [], datasets: [{ label: l, data: [], borderColor: c, backgroundColor: c + '2A', fill: true, tension: 0.4, pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', time: { unit: 'second', displayFormats: { second: 'HH:mm:ss' } }, ticks: { color: chartTextColor }, grid: { color: 'rgba(136, 146, 176, 0.1)' } }, y: { min: 0, max: y, ticks: { color: chartTextColor }, grid: { color: 'rgba(136, 146, 176, 0.2)' } } }, plugins: { legend: { display: false } }, animation: { duration: 400 } } });
+            try { allCharts = [createLineChart(document.getElementById('waterChart').getContext('2d'), 'pH Air', '#3A86FF', 14), createLineChart(document.getElementById('airChart').getContext('2d'), 'Polusi Udara', '#17C3B2', 100), createLineChart(document.getElementById('tempChart').getContext('2d'), 'Suhu', '#FF9F40', 100), createLineChart(document.getElementById('levelChart').getContext('2d'), 'Level Air', '#33A1FF', 100)]; } catch (e) { console.error('Gagal memuat grafik'); }
 
-                const createChart = (ctx, label, color, yMax) => {
-                    return new Chart(ctx, { 
-                        type: 'line', 
-                        data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, backgroundColor: color + '2A', fill: true, tension: 0.4, pointRadius: 0 }] }, 
-                        options: chartOptions(yMax, label) 
-                    });
-                };
-
-                const waterChart = createChart(document.getElementById('waterChart').getContext('2d'), 'Kualitas Air', '#3A86FF', 1023);
-                const airChart = createChart(document.getElementById('airChart').getContext('2d'), 'Kualitas Udara', '#17C3B2', 1023);
-                const tempChart = createChart(document.getElementById('tempChart').getContext('2d'), 'Suhu', '#FF9F40', 1023);
-                const levelChart = createChart(document.getElementById('levelChart').getContext('2d'), 'Level Air', '#33A1FF', 1023);
-
-                allCharts = [waterChart, airChart, tempChart, levelChart];
-
-            } catch (e) {
-                console.error("KESALAHAN FATAL: Gagal memuat atau merender grafik. Error asli:", e);
-                const chartContainers = document.querySelectorAll('.chart-container');
-                chartContainers.forEach(container => {
-                    container.innerHTML = `<div class="chart-error-overlay"><h3>Gagal Memuat Grafik</h3><p>Periksa Browser Console (F12).</p></div>`;
-                });
-            }
-
-            const dataKeys = ['water', 'air', 'temp', 'level'];
-            
-            // Ambil elemen UI sekali saja untuk efisiensi
-            const gyroStatusEl = document.querySelector('#gyroStatus .value-display');
-            const conveyorStatusIndicator = document.querySelector('#conveyorStatus .status-indicator');
-            const conveyorStatusText = document.querySelector('#conveyorStatus .value-display span');
-            const conveyorToggleButton = document.getElementById('conveyorToggleButton');
-            const serialMonitorOutput = document.getElementById('serialMonitorOutput');
-
+            const convertedDataKeys = ['ph', 'pollution', 'celsius', 'water_level'];
             async function updateDashboard() {
                 try {
-                    const dataResponse = await fetch('/data');
-                    if (dataResponse.ok) {
-                        const data = await dataResponse.json();
-                        if (data && data.timestamp) {
-                            const now = new Date();
-                            
-                            if (allCharts.length > 0) {
-                                allCharts.forEach((chart, index) => {
-                                    const key = dataKeys[index];
-                                    const chartData = chart.data;
-                                    chartData.labels.push(now);
-                                    chartData.datasets[0].data.push(data[key]);
-                                    
-                                    const maxDataPoints = 10;
-                                    if (chartData.labels.length > maxDataPoints) {
-                                        chartData.labels.shift();
-                                        chartData.datasets[0].data.shift();
-                                    }
-                                    chart.update('none');
-                                });
-                            }
+                    const dr = await fetch('/api/monitoring');
+                    if (!dr.ok) return;
+                    const d = await dr.json();
+                    if (d && d.timestamp && d.converted) {
+                        const n = new Date();
+                        allCharts.forEach((c, i) => { c.data.labels.push(n); c.data.datasets[0].data.push(d.converted[convertedDataKeys[i]]); if (c.data.labels.length > 10) { c.data.labels.shift(); c.data.datasets[0].data.shift(); } c.update('none'); });
+                    }
+                } catch (e) { console.error('Gagal update dashboard'); }
+            }
 
-                            // Update status panels (dengan null-check)
-                            if (gyroStatusEl) {
-                                if (data.gyro_right > 0) {
-                                    gyroStatusEl.textContent = 'KANAN →';
-                                } else if (data.gyro_left > 0) {
-                                    gyroStatusEl.textContent = '← KIRI';
-                                } else {
-                                    gyroStatusEl.textContent = 'CENTER';
-                                }
-                            }
-
-                            if (conveyorStatusIndicator && conveyorStatusText && conveyorToggleButton) {
-                                isConveyorOn = (data.conveyor === 1);
-                                if (isConveyorOn) {
-                                    conveyorStatusText.textContent = 'ON';
-                                    conveyorStatusIndicator.className = 'status-indicator on';
-                                    conveyorToggleButton.textContent = 'Matikan';
-                                } else {
-                                    conveyorStatusText.textContent = 'OFF';
-                                    conveyorStatusIndicator.className = 'status-indicator off';
-                                    conveyorToggleButton.textContent = 'Nyalakan';
-                                }
-                            }
+            async function updateStatistics() {
+                try {
+                    const response = await fetch('/api/statistics');
+                    if (!response.ok) return;
+                    const stats = await response.json();
+                    const table = document.getElementById('stats-table');
+                    const headers = `<thead><tr><th rowspan="2">Tanggal</th><th colspan="3">pH Air</th><th colspan="3">Polusi Udara (%)</th><th colspan="3">Suhu (°C)</th><th colspan="3">Level Air (%)</th></tr><tr class="sub-header"><th>Min</th><th>Avg</th><th>Max</th><th>Min</th><th>Avg</th><th>Max</th><th>Min</th><th>Avg</th><th>Max</th><th>Min</th><th>Avg</th><th>Max</th></tr></thead>`;
+                    let body = '<tbody>';
+                    const sortedDays = Object.keys(stats).sort().reverse();
+                    if (sortedDays.length === 0) {
+                        body += '<tr><td colspan="13">Belum ada data statistik.</td></tr>';
+                    } else {
+                        for (const day of sortedDays) {
+                            const s = stats[day];
+                            body += `<tr><td>${day}</td>
+                                <td>${s.lows.ph}</td><td>${s.averages.ph}</td><td>${s.highs.ph}</td>
+                                <td>${s.lows.pollution}</td><td>${s.averages.pollution}</td><td>${s.highs.pollution}</td>
+                                <td>${s.lows.celsius}</td><td>${s.averages.celsius}</td><td>${s.highs.celsius}</td>
+                                <td>${s.lows.water_level}</td><td>${s.averages.water_level}</td><td>${s.highs.water_level}</td>
+                            </tr>`;
                         }
                     }
-
-                    const logResponse = await fetch('/serial_log');
-                    if (logResponse.ok) {
-                        const logData = await logResponse.json();
-                        if (serialMonitorOutput) serialMonitorOutput.textContent = logData.join('\n');
-                    }
-
-                } catch (error) { 
-                    console.error("Gagal memperbarui dashboard:", error); 
-                }
+                    table.innerHTML = headers + body + '</tbody>';
+                } catch (e) { console.error('Gagal memuat statistik'); }
             }
 
-            // Event listener untuk tombol (dengan null-check)
-            if(conveyorToggleButton) {
-                conveyorToggleButton.addEventListener('click', function() {
-                    const newState = isConveyorOn ? 'off' : 'on';
-                    console.log(`Mengirim perintah konveyor: ${newState}`);
-                    fetch('/control', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ state: newState })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Respon server untuk perintah kontrol:', data);
-                    })
-                    .catch(error => {
-                        console.error('Error mengirim perintah kontrol:', error);
-                    });
+            // Blog Modal Logic
+            const blogModal = document.getElementById('blogModal');
+            const closeButton = document.querySelector('.close-button');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            document.querySelectorAll('.blog-card').forEach(card => {
+                card.addEventListener('click', function () {
+                    modalTitle.textContent = this.dataset.title;
+                    modalBody.innerHTML = `<p>${this.dataset.content}</p>`;
+                    blogModal.style.display = 'flex';
                 });
-            } else {
-                console.error("Tombol kontrol konveyor tidak ditemukan saat menambahkan event listener.");
-            }
+            });
+
+            closeButton.addEventListener('click', () => { blogModal.style.display = 'none'; });
+            window.addEventListener('click', (event) => { if (event.target == blogModal) { blogModal.style.display = 'none'; } });
 
             setInterval(updateDashboard, 2000);
+            updateStatistics();
+            setInterval(updateStatistics, 30000);
         });
     </script>
 </body>
+
 </html>
